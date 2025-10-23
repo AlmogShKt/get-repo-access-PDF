@@ -247,6 +247,36 @@
         .addEventListener("submit", async function (e) {
           e.preventDefault();
 
+          // Show disclaimer before processing the request
+          const disclaimerAccepted = confirm(`
+הצהרת כתב ויתור - קרא בעיון לפני השימוש
+
+הקוד הזה מסופק תחת רישיון קנייני לשימוש אישי/חינוכי בלבד.
+
+⚠️ אזהרה משפטית:
+• הקוד הזה מוגן על ידי חוק זכויות יוצרים
+• שימוש מסחרי אסור בהחלט
+• הורדה, העתקה או הפצה של הקוד ללא אישור בכתב אסורה
+• המפתח אינו נושא באחריות לנזקים, בעיות משפטיות או השלכות כלשהן
+• אתה משתמש בקוד הזה על אחריותך הבלעדית
+• כל תביעה נגד המפתח לא תהיה רלוונטית
+
+על ידי לחיצה על אישור, אתה מאשר כי:
+1. קראת והבנת את תנאי הרישיון
+2. תשתמש בקוד זה למטרות אישיות/חינוכיות בלבד
+3. אתה מקבל אחריות מלאה על כל השלכה
+4. לא תפנה שום טענה כלפי המפתח כאחראי לבעיות כלשהן
+
+by using the script I agree to terms of use.
+
+לתנאי השימוש המלאים: https://github.com/AlmogShKt/get-repo-access-PDF#terms-of-use
+          `);
+
+          if (!disclaimerAccepted) {
+            // User declined the terms
+            return;
+          }
+
           const submitBtn = document.getElementById("submitBtn");
           const loading = document.getElementById("loading");
           const result = document.getElementById("result");
