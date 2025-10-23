@@ -216,17 +216,7 @@
           </div>
         </div>
 
-        <div class="form-group">
-          <label for="permission">Permission Level</label>
-          <select id="permission" name="permission">
-            <option value="pull">Pull (Read-only) - Default</option>
-            <option value="triage">Triage (Read + Issues)</option>
-            <option value="push">Push (Read + Write)</option>
-            <option value="maintain">Maintain (Read + Write + Settings)</option>
-            <option value="admin">Admin (Full access)</option>
-          </select>
-          <div class="help-text">Most users should use "Pull" access</div>
-        </div>
+
 
         <button type="submit" class="submit-btn" id="submitBtn">
           Request Access
@@ -256,7 +246,7 @@
           const data = {
             email: formData.get("email"),
             github_username: formData.get("github_username"),
-            permission: formData.get("permission"),
+            permission: "pull", // Always use read-only access
           };
 
           // Show loading state
@@ -288,18 +278,31 @@
                         <strong>✅ Success!</strong><br>
                         ${
                           responseData.message ||
-                          "Your access request has been processed successfully."
+                          "Your access request has been processed successfully. You should receive a GitHub invitation shortly."
                         }
                     `;
             } else {
-              // Error
+              // Error - Provide detailed error messages based on status code
               result.className = "result error";
+              let errorMessage = "";
+              
+              if (response.status === 400) {
+                errorMessage = responseData.message || "Invalid request. Please check your email and GitHub username.";
+              } else if (response.status === 401 || response.status === 403) {
+                errorMessage = responseData.message || "Authentication failed. Please contact the repository administrator.";
+              } else if (response.status === 404) {
+                errorMessage = responseData.message || "Repository or user not found. Please verify your GitHub username is correct.";
+              } else if (response.status === 422) {
+                errorMessage = responseData.message || "The GitHub username provided appears to be invalid or doesn't exist.";
+              } else if (response.status >= 500) {
+                errorMessage = responseData.message || "Server error occurred. Please try again later or contact support.";
+              } else {
+                errorMessage = responseData.message || "An unexpected error occurred. Please try again.";
+              }
+              
               result.innerHTML = `
                         <strong>❌ Error:</strong><br>
-                        ${
-                          responseData.message ||
-                          "Something went wrong. Please try again."
-                        }
+                        ${errorMessage}
                     `;
             }
 
@@ -310,7 +313,7 @@
             result.className = "result error";
             result.innerHTML = `
                     <strong>❌ Network Error:</strong><br>
-                    Unable to connect to the server. Please check your internet connection and try again.
+                    Unable to connect to the server. Please check your internet connection and try again. If the problem persists, the service may be temporarily unavailable.
                 `;
             result.style.display = "block";
           } finally {
