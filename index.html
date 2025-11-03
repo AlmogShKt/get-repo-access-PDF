@@ -187,7 +187,7 @@
       <div class="header">
         <h1>🔐 Repository Access Request</h1>
         <p>Request access to the GitHub repository</p>
-        <div class="time-display" id="timeDisplay"></div>
+        <div class="time-display" id="timeDisplay" aria-live="polite" aria-label="Current date and time"></div>
       </div>
       <div class="repo-info">
         <h3>📚 Repository Details</h3>
@@ -261,7 +261,7 @@
 
       // Update time immediately and then every second
       updateTime();
-      setInterval(updateTime, 1000);
+      const timeInterval = setInterval(updateTime, 1000);
 
       document
         .getElementById("accessForm")
