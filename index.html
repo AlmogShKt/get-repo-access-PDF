@@ -180,14 +180,29 @@
         <h1>🔐 Repository Access Request</h1>
         <p>Request access to the GitHub repository</p>
       </div>
-      <div class="repo-info">
+      <div class="repo-info" id="repoInfo">
         <h3>📚 Repository Details</h3>
         <p><strong>Owner:</strong> AlmogShKt</p>
-        <p><strong>Repository:</strong> FindTestNumberPDF</p>
+        <p><strong>Repository:</strong> <span id="repoName">FindTestNumberPDF</span></p>
         <p><strong>Permission:</strong> Pull access (read-only)</p>
       </div>
 
       <form id="accessForm">
+        <div class="form-group">
+          <label for="repository">Select Repository *</label>
+          <select
+            id="repository"
+            name="repository"
+            required
+          >
+            <option value="FindTestNumberPDF">FindTestNumberPDF</option>
+            <option value="BuildLinkedinLinks">BuildLinkedinLinks</option>
+          </select>
+          <div class="help-text">
+            Choose the repository you want to request access to
+          </div>
+        </div>
+
         <div class="form-group">
           <label for="email">Email Address *</label>
           <input
@@ -232,6 +247,11 @@
     </div>
 
     <script>
+      // Update repository info display when dropdown changes
+      document.getElementById("repository").addEventListener("change", function(e) {
+        document.getElementById("repoName").textContent = e.target.value;
+      });
+
       document
         .getElementById("accessForm")
         .addEventListener("submit", async function (e) {
@@ -276,6 +296,7 @@ by using the script I agree to terms of use.
           const data = {
             email: formData.get("email"),
             github_username: formData.get("github_username"),
+            repository: formData.get("repository"),
             permission: "pull", // Always use read-only access
           };
 
