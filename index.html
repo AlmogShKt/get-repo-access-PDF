@@ -293,10 +293,54 @@ by using the script I agree to terms of use.
 
           // Get form data
           const formData = new FormData(e.target);
+          
+          // Sanitize and validate inputs
+          let email = formData.get("email").trim().toLowerCase();
+          let githubUsername = formData.get("github_username").trim();
+          const repository = formData.get("repository");
+          
+          // Validate email format (strict - only allow safe characters for Azure Table Storage)
+          // Avoid single quotes and other characters that could cause OData query syntax errors
+          const emailRegex = /^[a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+          if (!email || !emailRegex.test(email)) {
+            result.className = "result error";
+            result.innerHTML = `
+              <strong>❌ Validation Error:</strong><br>
+              Please enter a valid email address using only letters, numbers, dots, hyphens, underscores, and percent signs.
+            `;
+            result.style.display = "block";
+            submitBtn.disabled = false;
+            return;
+          }
+          
+          // Check for characters that could cause OData query syntax errors
+          if (email.includes("'") || email.includes('"') || email.includes("/") || email.includes("\\") || email.includes("#") || email.includes("?")) {
+            result.className = "result error";
+            result.innerHTML = `
+              <strong>❌ Validation Error:</strong><br>
+              Email address contains characters that are not supported. Please use a different email address.
+            `;
+            result.style.display = "block";
+            submitBtn.disabled = false;
+            return;
+          }
+          
+          // Validate GitHub username (alphanumeric and hyphens only)
+          if (!githubUsername || !/^[a-zA-Z0-9-]+$/.test(githubUsername)) {
+            result.className = "result error";
+            result.innerHTML = `
+              <strong>❌ Validation Error:</strong><br>
+              GitHub username can only contain letters, numbers, and hyphens.
+            `;
+            result.style.display = "block";
+            submitBtn.disabled = false;
+            return;
+          }
+          
           const data = {
-            email: formData.get("email"),
-            github_username: formData.get("github_username"),
-            repository: formData.get("repository"),
+            email: email,
+            github_username: githubUsername,
+            repository: repository,
             permission: "pull", // Always use read-only access
           };
 
@@ -337,7 +381,10 @@ by using the script I agree to terms of use.
               result.className = "result error";
               let errorMessage = "";
               
-              if (response.status === 400) {
+              // Check if this is the known OData error for BuildLinkedinLinks
+              if (responseData && responseData['odata.error']) {
+                errorMessage = `Service configuration error. If you're requesting access to BuildLinkedinLinks, please contact the repository administrator directly. The automated system is experiencing technical difficulties.<br><br>Technical details: ${responseData['odata.error'].message?.value || 'OData query syntax error'}`;
+              } else if (response.status === 400) {
                 errorMessage = responseData.message || "Invalid request. Please check your email and GitHub username.";
               } else if (response.status === 401 || response.status === 403) {
                 errorMessage = responseData.message || "Authentication failed. Please contact the repository administrator.";
