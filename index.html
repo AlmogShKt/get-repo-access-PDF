@@ -195,8 +195,7 @@
             name="repository"
             required
           >
-            <option value="FindTestNumberPDF">FindTestNumberPDF</option>
-            <option value="BuildLinkedinLinks">BuildLinkedinLinks</option>
+            <!-- Options will be populated based on List_key URL parameter -->
           </select>
           <div class="help-text">
             Choose the repository you want to request access to
@@ -247,6 +246,54 @@
     </div>
 
     <script>
+      // Parse URL parameters to filter repository list
+      function getUrlParameters() {
+        const params = new URLSearchParams(window.location.search);
+        return params.getAll('List_key');
+      }
+
+      function filterRepositoryOptions() {
+        const listKeys = getUrlParameters();
+        const repositorySelect = document.getElementById("repository");
+        
+        // Define repository mapping
+        const repositories = {
+          'PDF': 'FindTestNumberPDF',
+          'LinkedIn': 'BuildLinkedinLinks'
+        };
+        
+        // Clear existing options
+        repositorySelect.innerHTML = '';
+        
+        // If no List_key parameter, show empty list
+        if (listKeys.length === 0) {
+          return;
+        }
+        
+        // Add options based on List_key parameters
+        const addedRepos = new Set();
+        listKeys.forEach(key => {
+          const normalizedKey = key.trim();
+          const repoName = repositories[normalizedKey];
+          
+          if (repoName && !addedRepos.has(repoName)) {
+            const option = document.createElement('option');
+            option.value = repoName;
+            option.textContent = repoName;
+            repositorySelect.appendChild(option);
+            addedRepos.add(repoName);
+          }
+        });
+        
+        // Update the repository info display if we have at least one option
+        if (repositorySelect.options.length > 0) {
+          document.getElementById("repoName").textContent = repositorySelect.value;
+        }
+      }
+
+      // Initialize repository list on page load
+      filterRepositoryOptions();
+
       // Update repository info display when dropdown changes
       document.getElementById("repository").addEventListener("change", function(e) {
         document.getElementById("repoName").textContent = e.target.value;
