@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -12,8 +12,9 @@
       }
 
       body {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-          Oxygen, Ubuntu, Cantarell, sans-serif;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
+          Cantarell, sans-serif;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         min-height: 100vh;
         display: flex;
@@ -89,7 +90,9 @@
         font-size: 16px;
         font-weight: 600;
         cursor: pointer;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease;
       }
 
       .submit-btn:hover {
@@ -183,18 +186,17 @@
       <div class="repo-info" id="repoInfo">
         <h3>📚 Repository Details</h3>
         <p><strong>Owner:</strong> AlmogShKt</p>
-        <p><strong>Repository:</strong> <span id="repoName">FindTestNumberPDF</span></p>
+        <p>
+          <strong>Repository:</strong>
+          <span id="repoName">FindTestNumberPDF</span>
+        </p>
         <p><strong>Permission:</strong> Pull access (read-only)</p>
       </div>
 
       <form id="accessForm">
         <div class="form-group">
           <label for="repository">Select Repository *</label>
-          <select
-            id="repository"
-            name="repository"
-            required
-          >
+          <select id="repository" name="repository" required>
             <!-- Options will be populated based on List_key URL parameter -->
           </select>
           <div class="help-text">
@@ -230,8 +232,6 @@
           </div>
         </div>
 
-
-
         <button type="submit" class="submit-btn" id="submitBtn">
           Request Access
         </button>
@@ -249,45 +249,46 @@
       // Parse URL parameters to filter repository list
       function getUrlParameters() {
         const params = new URLSearchParams(window.location.search);
-        return params.getAll('List_key');
+        return params.getAll("List_key");
       }
 
       function filterRepositoryOptions() {
         const listKeys = getUrlParameters();
         const repositorySelect = document.getElementById("repository");
-        
+
         // Define repository mapping
         const repositories = {
-          'PDF': 'FindTestNumberPDF',
-          'LinkedIn': 'BuildLinkedinLinks'
+          PDF: "FindTestNumberPDF",
+          LinkedIn: "BuildLinkedinLinks",
         };
-        
+
         // Clear existing options
-        repositorySelect.innerHTML = '';
-        
+        repositorySelect.innerHTML = "";
+
         // If no List_key parameter, show empty list
         if (listKeys.length === 0) {
           return;
         }
-        
+
         // Add options based on List_key parameters
         const addedRepos = new Set();
-        listKeys.forEach(key => {
+        listKeys.forEach((key) => {
           const normalizedKey = key.trim();
           const repoName = repositories[normalizedKey];
-          
+
           if (repoName && !addedRepos.has(repoName)) {
-            const option = document.createElement('option');
+            const option = document.createElement("option");
             option.value = repoName;
             option.textContent = repoName;
             repositorySelect.appendChild(option);
             addedRepos.add(repoName);
           }
         });
-        
+
         // Update the repository info display if we have at least one option
         if (repositorySelect.options.length > 0) {
-          document.getElementById("repoName").textContent = repositorySelect.value;
+          document.getElementById("repoName").textContent =
+            repositorySelect.value;
         }
       }
 
@@ -295,9 +296,11 @@
       filterRepositoryOptions();
 
       // Update repository info display when dropdown changes
-      document.getElementById("repository").addEventListener("change", function(e) {
-        document.getElementById("repoName").textContent = e.target.value;
-      });
+      document
+        .getElementById("repository")
+        .addEventListener("change", function (e) {
+          document.getElementById("repoName").textContent = e.target.value;
+        });
 
       document
         .getElementById("accessForm")
@@ -340,12 +343,12 @@ by using the script I agree to terms of use.
 
           // Get form data
           const formData = new FormData(e.target);
-          
+
           // Sanitize and validate inputs
           let email = formData.get("email").trim().toLowerCase();
           let githubUsername = formData.get("github_username").trim();
           const repository = formData.get("repository");
-          
+
           // Validate email format (strict - only allow safe characters for Azure Table Storage)
           // Avoid single quotes and other characters that could cause OData query syntax errors
           const emailRegex = /^[a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -359,9 +362,16 @@ by using the script I agree to terms of use.
             submitBtn.disabled = false;
             return;
           }
-          
+
           // Check for characters that could cause OData query syntax errors
-          if (email.includes("'") || email.includes('"') || email.includes("/") || email.includes("\\") || email.includes("#") || email.includes("?")) {
+          if (
+            email.includes("'") ||
+            email.includes('"') ||
+            email.includes("/") ||
+            email.includes("\\") ||
+            email.includes("#") ||
+            email.includes("?")
+          ) {
             result.className = "result error";
             result.innerHTML = `
               <strong>❌ Validation Error:</strong><br>
@@ -371,7 +381,7 @@ by using the script I agree to terms of use.
             submitBtn.disabled = false;
             return;
           }
-          
+
           // Validate GitHub username (alphanumeric and hyphens only)
           if (!githubUsername || !/^[a-zA-Z0-9-]+$/.test(githubUsername)) {
             result.className = "result error";
@@ -383,7 +393,7 @@ by using the script I agree to terms of use.
             submitBtn.disabled = false;
             return;
           }
-          
+
           const data = {
             email: email,
             github_username: githubUsername,
@@ -405,7 +415,7 @@ by using the script I agree to terms of use.
                   "Content-Type": "application/json",
                 },
                 body: JSON.stringify(data),
-              }
+              },
             );
 
             const responseData = await response.json();
@@ -427,24 +437,36 @@ by using the script I agree to terms of use.
               // Error - Provide detailed error messages based on status code
               result.className = "result error";
               let errorMessage = "";
-              
+
               // Check if this is the known OData error for BuildLinkedinLinks
-              if (responseData && responseData['odata.error']) {
-                errorMessage = `Service configuration error. If you're requesting access to BuildLinkedinLinks, please contact the repository administrator directly. The automated system is experiencing technical difficulties.<br><br>Technical details: ${responseData['odata.error'].message?.value || 'OData query syntax error'}`;
+              if (responseData && responseData["odata.error"]) {
+                errorMessage = `Service configuration error. If you're requesting access to BuildLinkedinLinks, please contact the repository administrator directly. The automated system is experiencing technical difficulties.<br><br>Technical details: ${responseData["odata.error"].message?.value || "OData query syntax error"}`;
               } else if (response.status === 400) {
-                errorMessage = responseData.message || "Invalid request. Please check your email and GitHub username.";
+                errorMessage =
+                  responseData.message ||
+                  "Invalid request. Please check your email and GitHub username.";
               } else if (response.status === 401 || response.status === 403) {
-                errorMessage = responseData.message || "Authentication failed. Please contact the repository administrator.";
+                errorMessage =
+                  responseData.message ||
+                  "Authentication failed. Please contact the repository administrator.";
               } else if (response.status === 404) {
-                errorMessage = responseData.message || "Repository or user not found. Please verify your GitHub username is correct.";
+                errorMessage =
+                  responseData.message ||
+                  "Repository or user not found. Please verify your GitHub username is correct.";
               } else if (response.status === 422) {
-                errorMessage = responseData.message || "The GitHub username provided appears to be invalid or doesn't exist.";
+                errorMessage =
+                  responseData.message ||
+                  "The GitHub username provided appears to be invalid or doesn't exist.";
               } else if (response.status >= 500) {
-                errorMessage = responseData.message || "Server error occurred. Please try again later or contact support.";
+                errorMessage =
+                  responseData.message ||
+                  "Server error occurred. Please try again later or contact support.";
               } else {
-                errorMessage = responseData.message || "An unexpected error occurred. Please try again.";
+                errorMessage =
+                  responseData.message ||
+                  "An unexpected error occurred. Please try again.";
               }
-              
+
               result.innerHTML = `
                         <strong>❌ Error:</strong><br>
                         ${errorMessage}
